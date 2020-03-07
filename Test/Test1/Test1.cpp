@@ -1,5 +1,9 @@
+/*
+This is a small test to show the basic operations and features of the GC.
+*/
+
 #include <iostream>
-#include "markGC.h"
+#include "../../Source/markGC.h"
 using namespace std;
 
 GCSystem sys;
@@ -43,7 +47,7 @@ private:
 int TestA::IDAlloc = 1;
 int TestB::IDAlloc = 1;
 
-int main(){
+int main() {
 	IGCObject * p1, * p2, * p3, * p4;
 	p1 = gcnew<TestA>(sys);
 	p2 = gcnew<TestA>(sys);

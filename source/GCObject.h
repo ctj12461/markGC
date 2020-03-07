@@ -5,6 +5,7 @@
 
 class IGCObject
 {
+	friend class GCSystem;
 public:
 	virtual ~IGCObject() {};
 	
@@ -18,6 +19,7 @@ protected:
 
 class GCObject : public IGCObject
 {
+	friend class GCSystem;
 public:
 	GCObject() {};
 	~GCObject() {};

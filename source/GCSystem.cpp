@@ -3,7 +3,7 @@
 using namespace std;
 
 GCSystem::~GCSystem() {
-	for(auto i : ObjectsPool){
+	for (auto i : ObjectsPool){
 		delete i;
 	}
 	ObjectsPool.clear();
@@ -19,34 +19,39 @@ void GCSystem::disconnect(IGCObject * obj) {
 }
 
 void GCSystem::mark(bool sign) {
-	queue<pair<IGCObject*, int> > removeQueue;
 	GCSign = sign;
-	for(auto i : Count) {
-		if(i.second <= 0) {
-			removeQueue.push(i);
+	queue<IGCObject*> q;
+	for (auto it = Count.begin(), ed = Count.end(); it != ed;) {
+		if(it->second <= 0) {
+			Count.erase(it++);
+		} else if (it->first->GCSign != sign) {
+			q.push(it->first);
+			++it;
 		}
 	}
-	while(!removeQueue.empty()) {
-		Count.erase(removeQueue.front().first);
-		removeQueue.pop();
-	}
-	for(auto i : Count) {
-		i.first->mark(sign);
+	while (!q.empty()) {
+		GCObject *now = static_cast<GCObject*>(q.front()); q.pop();
+		now->mark(sign);
+		for (auto it = now->Count.begin(), ed = now->Count.end(); it != ed;) {
+			if(it->second <= 0) {
+				now->Count.erase(it++);
+			} else if (it->first->GCSign != sign) {
+				q.push(it->first);
+				++it;
+			}
+		}
 	}
 }
 
 void GCSystem::gc() {
 	bool nextSign = !GCSign;
-	queue<IGCObject*> removeQueue;
 	mark(nextSign);
-	for(auto i : ObjectsPool) {
-		if(i->sign() != nextSign) {
-			removeQueue.push(i);
+	for (auto it = ObjectsPool.begin(), ed = ObjectsPool.end(); it != ed;) {
+		if((*it)->sign() != nextSign) {
+			delete *it;
+			ObjectsPool.erase(it++);
+		} else {
+			++it;
 		}
-	}
-	while(!removeQueue.empty()){
-		delete removeQueue.front();
-		ObjectsPool.erase(removeQueue.front());
-		removeQueue.pop();
 	}
 }
